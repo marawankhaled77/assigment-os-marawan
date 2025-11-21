@@ -1,0 +1,146 @@
+LAB-5 CODE EXAMPLES 
+
+EXERCISE 1: Process Creation with fork()
+
+What does this program demonstrate?
+This program shows how to create new processes in C using the fork() system call.
+
+How does fork() work?
+- Creates a copy of the current process
+- Returns 0 to the newly created child process
+- Returns the child's PID to the parent process
+- Returns -1 if the operation fails
+
+What happens when we run process_creation.c?
+1. Program calls fork() to spawn a child process
+2. Child process identifies itself (when pid == 0) and prints its PID
+3. Parent process identifies itself (when pid > 0) and prints its PID
+4. Error handling triggers if fork fails (when pid < 0)
+
+Why is this important?
+It demonstrates concurrent execution - one program becomes two independent processes running simultaneously.
+
+───────────────────────────────────────────────────────────────
+
+EXERCISE 5: Understanding the Linker
+
+What do these files demonstrate?
+file1.c and file2.c work together to show how the linker merges separate code modules.
+
+What's in file1.c?
+- Contains the implementation of hello() function
+- Prints "Hello from file1!"
+
+What's in file2.c?
+- Contains a forward declaration of hello()
+- Contains main() which calls hello()
+
+How does the linking process work?
+1. file1.c is compiled → file1.o (object file)
+2. file2.c is compiled → file2.o (object file)
+3. Linker takes both .o files
+4. Linker finds hello() definition in file1.o
+5. Linker connects hello() call in file2.o to definition in file1.o
+6. Final executable is created
+
+What concept does this illustrate?
+Separate compilation and modular programming.
+
+───────────────────────────────────────────────────────────────
+
+EXERCISE 6: Understanding the Loader
+
+What is simple_program.c?
+A minimal C program used to observe runtime library loading.
+
+What does it do?
+- Displays "This is a simple program."
+- Exits successfully (return 0)
+
+How do we inspect the loader's work?
+Use the `ldd` command on the compiled executable:
+```bash
+ldd ./simple_program
+```
+
+What does this reveal?
+Shows all shared libraries the loader will load into memory before running the program.
+
+───────────────────────────────────────────────────────────────
+
+DEEP DIVE: THE LINKER
+
+What is a Linker?
+A system utility that merges compiled object files into a single executable program.
+
+What are its main jobs?
+
+Job 1: Symbol Resolution
+- Connects function calls to function definitions
+- Matches variable references to variable declarations
+- Ensures all code components can find each other
+
+Job 2: Relocation
+- Determines final memory addresses for code and data
+- Updates all address references
+- Merges code sections from multiple files
+
+Job 3: Library Integration
+- Incorporates external libraries into your program
+- Connects to standard functions (printf, malloc, etc.)
+- Supports both static (compile-time) and dynamic (runtime) linking
+
+Job 4: Validation
+- Detects missing function definitions
+- Identifies duplicate definitions
+- Ensures program completeness
+
+Real-world example?
+When you compile file1.c and file2.c separately, the linker:
+- Takes file1.o and file2.o
+- Finds hello() definition in file1.o
+- Resolves hello() call in file2.o
+- Creates working executable
+
+───────────────────────────────────────────────────────────────
+
+DEEP DIVE: THE LOADER
+
+What is a Loader?
+An operating system component that prepares programs for execution.
+
+What are its main jobs?
+
+Job 1: Memory Preparation
+- Reads executable from storage
+- Allocates required memory
+- Loads code and data into RAM
+- Creates program segments (code, data, stack, heap)
+
+Job 2: Dynamic Library Management
+- Loads required shared libraries (.so files)
+- Connects program to library functions
+- Shares library code between multiple programs
+- Examples: libc.so, libm.so
+
+Job 3: Address Adjustment
+- Adapts program to actual memory location
+- Updates all memory pointers
+- Handles position-independent code
+
+Job 4: Environment Setup
+- Creates runtime stack
+- Initializes heap memory
+- Passes command-line arguments
+- Jumps to main() function
+
+Real-world example?
+When you run `./simple_program`:
+1. Loader reads the file
+2. Allocates memory
+3. Loads these libraries (shown by ldd):
+   - linux-vdso.so.1 (kernel interface)
+   - libc.so.6 (C standard library)
+   - ld-linux.so (dynamic linker itself)
+4. Sets up execution environment
+5. Begins running your code
